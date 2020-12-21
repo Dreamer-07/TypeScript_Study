@@ -149,6 +149,8 @@
 
    该变量可以用任意类型的数据赋值(显式 any)
 
+   **注意：** any类型的变量可以赋值给其他不同类型的变量
+
    ```typescript
    //2. any - 该变量可以用任意类型的数据赋值(显式 any)
    let d : any;
@@ -160,6 +162,99 @@
    e = 10;
    e = '巴御前';
    e = false;
+   
+   //any类型的数据还可以赋值给其他变量，可能会导致隐式的错误且不会报错
+   let g: string;
+   // g = e; 
    ```
 
 3. unknown
+
+   该变量表示未知类型的值，相当于一个安全的any(**该变量的值不能直接赋值给其他变量**)
+
+   ```typescript
+   //3. unknown - 该变量表示未知类型的值，相当于一个安全的any(该变量的值不能直接赋值给其他变量)
+   let f: unknown;
+   f = '巴御前';
+   f = 456;
+   f = true;
+   
+   // g = f; //不能将类型“unknown”分配给类型“string” - 但如果时 unknown，在赋值给其他类型的变量时就会报错
+   //3.1 使用 typeof 将 unknown 赋值给其他类型的变量
+   if(typeof f === "string"){
+       g = f; //不会报错
+   }
+   /* 3.2 使用类型断言 
+       告诉解析器变量的实际类型    
+       语法：
+           1. 变量 as 类型
+           2. <类型> 变量
+   */
+   g = f as string;
+   g = <string> f;
+   ```
+
+   **类型断言**：告诉解析器变量的实际类型
+
+   语法：
+
+   1. 变量 as 类型
+   2. <类型> 变量
+
+4. void 
+
+   表示空,多用于函数的返回值类型,表示没有返回值的函数
+
+   ```typescript
+   //4. void - 表示空,多用于函数的返回值类型,表示没有返回值的函数
+   function testA():void{
+       // return false; //不能将类型“boolean”分配给类型“void” - 不能返回其他数据类型
+       //不返回值也不会报错
+       //直接返回也可以
+       // return;
+       //返回 null 值 | undefined 也可以
+       // return null;
+       return undefined;
+   }
+   ```
+
+5. never
+
+   表示永远不返回结果，多用于专门报错的函数
+
+   ```typescript
+   //5. never - 表示永远不返回结果，多用于专门报错的函数
+   function testB():never{
+       throw new Error('出错啦!');
+   }
+   ```
+
+6. object 表示一个 JS 对象
+
+   由于 JS 中的函数和数组也算对象，直接使用 object 会导致达不到预期的效果
+
+   可以使用 {} 不会对象类型做限制，而对对象内的属性做限制
+
+   ```typescript
+   //6. object 表示一种对象
+   let a:object;
+   // 由于 JS 中的函数和数组也算对象，直接使用 object 会导致达不到预期的效果
+   a = {};
+   a = function(){};
+   // 可以使用 {} 不会对象类型做限制，而对对象内的属性做限制
+   //6.1 语法: {属性名:数据类型,属性名:数据类型}
+   let b:{
+       name:string,
+       age:number,
+       info?:string; //在属性名后面加上?，表示该属性可有可无
+       [propName:string]:any; //表示任意类型的数据(键名为 string 类型即可)
+   };
+   // b = {name:'abc'}; //类型 "{ name: string; }" 中缺少属性 "age"，缺少必要属性时就会报错
+   b = {name:"Tom",age:16}; //其他属性可有可无
+   ```
+
+   赋值时，如果赋值的对象属性中**不包含必要的属性**(上述的 name 和 age)就会报错
+
+   可以在对应的属性名(上述的 info)后加上 ?，表示可有可无
+
+   如果赋值的对象还包含了额外的值，也会报错，可以使用 `[propName:string]:any` 表示可以接收任意类型的值
