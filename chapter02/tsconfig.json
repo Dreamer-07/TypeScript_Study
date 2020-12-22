@@ -1,0 +1,62 @@
+{
+  "include":[
+    "./src/js/*",
+    "./src/js/temp/**/*"
+  ],
+  "exclude":[
+    "./src/js/index/**/*"
+  ],
+  /* 
+    compilerOptions - 编译器选项
+  */
+  "compilerOptions":{
+    // target 用来指定 TS 被编译成 JS 的版本
+    // 默认值："es3"
+    // 可选值：'es3', 'es5', 'es6', (=) 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'esnext'
+    "target" : "ES2015",
+    
+    // module 指定要使用的模块化的规范
+    // 可选值：'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'esnext'
+    "module" : "es2015",
+
+    // lib 用来指定项目中要使用的库(默认不改)
+    // "lib"  : []
+
+    // outDir 用来指定编译后文件所在的目录
+    "outDir" : "./dist",
+
+    // outFile 将代码合并为一个文件
+    // "outFile" : "./dist/app.js"
+
+    // allowJs 将 JS 文件进行编译，默认是 false
+    "allowJs": true,
+
+    // checkJs 是否检查 JS 代码符合语法规范，默认是 false
+    "checkJs": false,
+
+    // removeComments: 是否移除注释，默认为 false
+    "removeComments":false,
+
+    // noEmit 是否生成编译后的文件,默认为 true
+    "noEmit": false, 
+
+    // onEmitOnError 出现异常时是否不生成编译后的文件，默认为 false
+    "noEmitOnError": true,
+
+    // strict 所有严格检查的总开光，默认为 true
+    "strict": true,
+
+    // alwaysStrict 编译后的 JS 文件是否使用严格模式，默认为 false
+    // 使用 import / export 时会自动打开 JS 的严格模式
+    "alwaysStrict": true,
+
+    // onImplicitAny 不允许隐式的 any 类型，默认为 false
+    "noImplicitAny": true,
+
+    // noImplicitThis 不允许不明确类型的 this，默认为 false
+    "noImplicitThis": true,
+
+    // strickNullChecks 严格检查空值，默认为 false
+    "strictNullChecks": true
+  }
+}

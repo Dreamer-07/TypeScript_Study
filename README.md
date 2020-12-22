@@ -404,3 +404,284 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
        ```
 
 
+# 第三章 编译选项
+
+1. 自动编译文件
+
+   在使用 tsc 命令编译文件时。可以在后面加上 -w 参数，表示实时编译
+
+   ```
+   tsc xxx.ts -w; //监视该文件的改变
+   ```
+
+   在一定的时间间隔后如果文件发生改变，就会自动编译 
+
+2. 自动编译整个项目 
+
+   在项目的根目录下编写一个 `tsconfig.json` 文件 ，用于配置编译的信息
+
+   ```
+   tsc --init //也可以调用该命令生产初始化文件
+   ```
+
+   在终端打开根目录的路径，直接使用 tsc 命令即可，也可以加上 -w 表示监听整个项目的 TS 文件
+
+   **tsconfig.json 是 ts 编译器的配置文件，ts 编译器可以根据它的信息来对代码进行编译**
+
+3. tsconfig.json 的配置选项
+
+   (从外到里)
+
+   - include
+
+     - 可以指定要编译的 TS 文件所在的**目录**
+
+     - 默认值：["\*\*/*"]
+
+     - 示例
+
+       ```json
+       "include":["./src/**/*","tests/**/*"
+       ```
+
+   - exclude
+
+     - 定义需要排除在外的**目录**
+
+     - 默认值：["node_modules","bower_components","jspm_packages"]
+
+     - 示例
+
+       ```json
+       "exclude": ["./src/hello/**/*"]
+       ```
+
+   - extends
+
+     - 定义继承的配置文件(后缀名默认为 json)
+
+     - 示例
+
+       ```json
+       "extends": "./config/base"
+       ```
+
+   - files
+
+     - 指定被编译文件的列表,只要需要**编译的文件少时才会用到**
+
+     - 示例
+
+       ```json
+       "files": [
+           "1.ts",
+           "2.ts"
+       ]
+       ```
+
+     - 列表中的文件都会被 TS 编译器所编译
+
+   - **compilerOptions - 编译器选项**
+
+     - 在 compilerOptions 中包含了多个子选项，用来**完成编译的配置**
+
+     - 项目选项(子选项)
+
+       1. **target** 用来指定 TS 被编译成 JS 的版本
+
+          - 默认值："es3"
+
+          - 可选值：'es3', 'es5', 'es6', (=) 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'esnext'
+
+              "target" : "ES2015",
+
+       2. **module** 指定要使用的模块化的规范
+
+          - 可选值：'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'esnext'
+
+       3. **lib** 用来指定项目中要使用的库(**默认不改**)
+
+       4. **outDir** 用来指定编译后文件所在的目录
+
+       5. **outFile**  将代码合并为一个文件(**不常用**)
+
+       6. **allowJs** 将 JS 文件进行编译，默认是 false
+
+       7. **checkJs** 是否检查 JS 代码符合语法规范，默认是 false
+
+       8. **removeComments** 是否移除注释，默认为 false
+
+       9. **onEmit** 是否**不生成**编译后的文件,默认为 false
+
+       10. **onEmitOnError** 出现异常时是否**不生成**编译后的文件，默认为 false
+
+       11. **strict** 所有严格检查的开关，默认为 true
+
+       12. **alwaysStrict** 编译后的 JS 文件是否使用 **严格模式**，默认为 false
+
+           使用 import / export 时会自动打开 JS 的严格模式
+
+       13. **noImplicitAny**  不允许隐式的 any 类型，默认为 false
+
+       14. **noImplicitThis**  不允许不明确类型的 this，默认为 false
+
+       15. **strickNullChecks** 严格检查空值，默认为 false
+
+# 第四章 使用 webpack 打包 TS
+
+## 4.1 基础使用
+
+1. 使用 `npm init -y` 初始化项目，生成对应的 **package.json**
+
+2. 安装需要的依赖
+
+   ```javascript
+   npm i -D(表示是开发依赖) webpack(打包工具) webpack-cli(webpack的命令行) typescript ts-loader(集成需要)
+   ```
+
+3. 编写 wenpack 的配置文件 `wenpack.config.js `
+
+   ```js
+   // 导入一个 NodeJS 中的模块 path
+   const path = require('path');
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       // 指定入口文件
+       entry: "./src/ts/index.ts",
+   
+       // 指定打包文件所在目录
+       output: {
+           // 指定打包文件的目录
+           path: path.resolve(__dirname,'dist'),
+           // 指定打包后的文件名
+           filename: "bundle.js"
+       },
+   
+       // 指定 webpack 打包时要是用的模块
+       module: {
+           // 指定要加载的规则
+           rules: [
+               {
+                   // test 使用正则指定使用规则的文件
+                   test: /\.ts$/,
+                   // 要使用的 loader
+                   use: 'ts-loader',
+                   // 要排除的文件
+                   exclude: /node_modules/
+               }
+           ]
+       }
+   }
+   ```
+
+4. 在项目的根目录下使用 `tsc -init` 生成 tsconfig.json 配置文件
+
+5. 配置  TS 的编译选项
+
+   ```json
+   {
+       "compilerOptions": {
+           "target" : "ES2015",
+           "module" : "ES2015",
+           "strict" : true
+       }
+   }
+   ```
+
+6. 修改 package.json，加上 **bulid 命令**
+
+   ```json
+   {
+       "name": "chapter03",
+       "version": "1.0.0",
+       "description": "",
+       "main": "index.js",
+       "scripts": {
+           "test": "echo \"Error: no test specified\" && exit 1",
+           //添加此项
+           "build": "webpack"
+       },
+       "keywords": [],
+       "author": "",
+       "license": "ISC"
+   }
+   ```
+
+7. 在项目的根目录下执行 `npm run build` 命令
+
+## 4.2 自动生成 HTML 文件
+
+> 由 webpack 生成对应的 html 文件，该文件中引入项目中的其他资源(CSS/JS)
+
+1. 使用命令 `npm i -D html-webpack-plugin`
+
+2. 修改 `webpack.config.js` 文件中的配置 - 配置 webpack 的插件
+
+   ```javascript
+   // 导入一个 NodeJS 中的模块 path
+   const path = require('path');
+   // 引入 html 插件
+   const WebpackHtmlPlugin = require('html-webpack-plugin');
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       // 指定入口文件
+       entry: "./src/ts/index.ts",
+   
+       // 指定打包文件所在目录
+       output: {
+           // 指定打包文件的目录
+           path: path.resolve(__dirname,'dist'),
+           // 指定打包后的文件名
+           filename: "bundle.js"
+       },
+   
+       // 指定 webpack 打包时要是用的模块
+       module: {
+           // 指定要加载的规则
+           rules: [
+               {
+                   // test 使用正则指定使用规则的文件
+                   test: /\.ts$/,
+                   // 要使用的 loader
+                   use: 'ts-loader',
+                   // 要排除的文件
+                   exclude: /node_modules/
+               }
+           ]
+       },
+   
+       //配置 webpack 插件
+       plugins: [ 
+           new WebpackHtmlPlugin()
+       ]
+   }
+   ```
+
+3. 重新直接编译指令 `npm run build` 执行编译
+
+   ![image-20201222195453276](README.assets/image-20201222195453276.png)
+
+   (编译结果 - html 为自动生成且以及导入了 bundle.js) 
+
+4. 可以在 **配置 webpack 插件中** 配置生成的 html 信息
+
+   ```javascript
+   //配置 webpack 插件
+   plugins: [
+       new WebpackHtmlPlugin(
+           //配置生成的 html 文件
+           {
+               //可以指定生成 html 文件中 title 标签体的内容
+               // "title": "巴御前天下第一",
+   
+               // template 属性可以指定生成文件参考的模板
+               "template": "./src/html/template.html"
+           }
+       )
+   ]
+   ```
+
+
+
