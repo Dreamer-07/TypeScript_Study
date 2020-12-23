@@ -424,7 +424,7 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
    tsc --init //也可以调用该命令生产初始化文件
    ```
 
-   在终端打开根目录的路径，直接使用 tsc 命令即可，也可以加上 -w 表示监听整个项目的 TS 文件
+   **在终端打开根目录的路径，直接使用 tsc 命令即可，也可以加上 -w 表示监听整个项目的 TS 文件**
 
    **tsconfig.json 是 ts 编译器的配置文件，ts 编译器可以根据它的信息来对代码进行编译**
 
@@ -862,5 +862,552 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
 
 # 第五章 面向对象
 
-## 5.1 类 class
+## 5.1 类 class (更多可以参考 ES6)
 
+### 类的简介
+
+- 可以使用 `class` 关键字创建一个类
+
+- 类中主要包括两个部分
+
+  1. 属性
+     - 直接定义的属性为实例属性，只能通过实例对象访问
+     - 使用 **static** 关键字定义的属性为 类属性(静态属性)，可以通过类直接访问
+     - 使用 **readonly** 关键字定义的只读属性
+  2. 方法：使用方式和属性的 1,2 点相同
+
+- ```typescript
+  class Person{
+  
+      //定义实例属性
+      name: string = "巴御前";
+      age: number = 18;
+  
+      //使用 static 定义类属性(静态属性)
+      static info: string = "我是人";
+  
+      //使用 readonly 定义只读属性
+      readonly tags: string = "suki";
+  
+      //实例方法
+      testA(){
+          console.log("testA");
+      }
+  
+      //静态方法
+      static testB(){
+          console.log("testB");
+      }
+  }
+  
+  const per = new Person();
+  console.log(per);
+  console.log(per.name,per.age);
+  
+  //通过类去访问静态属性
+  console.log(Person.info);
+  
+  console.log(per.tags);
+  // per.tags = "欸嘿嘿嘿"; //无法分配到 "tags" ，因为它是只读属性。ts(2540)
+  
+  per.testA();
+  Person.testB();
+  ```
+
+### 构造函数
+
+- 可以在类中使用 `constructor` 关键字定义构造函数
+
+- 可以定义多个构造函数(方法参数的类型和个数要不同)
+
+- 创建实例对象时，传入对应的参数就会调用对应的构造函数
+
+- ```typescript
+  class Person2{
+      //定义属性
+      name: string;
+      age: number;
+      //通过 construct 关键字定义构造函数
+      constructor(name: string , age: number){
+          //在实例方法中，可以通过 this 获取当前使用的实例对象
+          this.name = name;
+          this.age = age;
+      }
+  
+      toString(){
+          console.log(this);   
+      }
+  }
+  
+  let per1 = new Person2("巴御前",16);
+  per1.toString();
+  let per2 = new Person2("巴御前",18);
+  per2.toString();
+  ```
+
+### 继承简介
+
+- 在定义类的时，可以使用 `extends` 关键字指定要继承的父类
+
+  语法：A extends B; 此时 B 是父类，A 是子类
+
+- 使用继承后，子类将会拥有父类的所有方法和属性
+
+- 通过继承可以将多个具有共同特征的类共有的代码抽取出来
+
+- **ocp 原则：对扩展开发，对修改关闭**
+
+- **方法重写**：如果在子类中定义了和父类相同的方法，则子类方法会覆盖掉父类方法(针对于**子类实例**)
+
+- ```typescript
+  (function () {
+      class Person{
+          name: string;
+          age: number;
+  
+          constructor(name: string,age: number){
+              this.name = name;
+              this.age = age;
+          }
+  
+          toString(){
+              console.log("Person...");
+          }
+      }
+  
+      /* 在定义类的时，可以使用 extends 继承于其他类
+          - 语法: A extends B; 此时 B 是父类，A 是子类
+          - 使用继承后，子类将会拥有父类的所有方法和属性
+          - 通过继承可以将多个具有共同特征的类共有的代码抽取出来 
+          - ocp 原则：对扩展开发，对修改关闭
+          - 方法重写：如果在子类中定义了和父类相同的方法，则子类方法会覆盖掉父类方法(针对于子类实例)
+      */
+      class Student extends Person{
+          score: number;
+  
+          constructor(name: string,age: number,score: number){
+              //通过 super - 如果在子类中写了构造函数，在子类构造函数中必须调用父类的构造方法
+              super(name,age);
+              this.score = score;
+          }
+  
+          toString(){
+              console.log("Stundet..");
+          }
+      }
+  
+      class Teacher extends Person{
+          price: number;
+  
+          constructor(name: string,age: number,price: number){
+              super(name,age);
+              this.price = price;
+          }
+  
+          toString(){
+              console.log("Teacher....");
+          }
+      }
+  
+      let stu = new Student("巴御前",16,100);
+      console.log(stu);
+      stu.toString();
+  
+      let tea = new Teacher("咕哒夫",17,100000);
+      console.log(tea);
+      tea.toString();
+  })();
+  ```
+
+### super & this 关键字
+
+- 可以通过 **this** 访问当前正在使用的实例对象
+- 可以通过 **super** 访问继承的父类
+- 如果子类中写了构造函数，在子类构造函数中必须调用父类的构造方法 **super**
+
+
+
+## 5.2 抽象 abstract
+
+> TS 自带的
+
+### 抽象类
+
+- 使用 `abstract` 关键声明类,标识该类为一个抽象类
+
+- 抽象类最主要的区别是：**不能用来创建对象**
+
+- **抽象类就是用来被继承的类**
+
+- ```typescript
+  (function () {
+      /* 
+      可以使用 abstract 关键字用于声明类
+          - 抽象类最主要的区别是：不能用来创建对象
+          - 抽象类就是用来被继承的类
+      */
+      abstract class Person{
+          name: string;
+          age: number;
+  
+          constructor(name: string,age: number){
+              this.name = name;
+              this.age = age;
+          }
+  
+      }
+  
+      // let p1 = new Person("巴御前",18); //无法创建抽象类的实例。ts(2511)
+  
+  })();
+  ```
+
+### 抽象方法
+
+- 使用 `abstract` 关键字声明方法，表示该方法是一个抽象方法
+
+- 对于抽象方法的声明，只需要在抽象类中定义对应的函数结果(参数类型,个数,返回值类型...)即可
+
+- 抽象方法只能存在于抽象类中
+
+- 如果一个非抽象类继承了抽象类，就**必须重写对应的抽象方法**
+
+- ```typescript
+  (function () {
+      abstract class Person{
+          name: string;
+          age: number;
+  
+          constructor(name: string,age: number){
+              this.name = name;
+              this.age = age;
+          }
+  
+          // 可以使用 abstract 声明方法，表示该方法是一个抽象方法
+          // 对于抽象方法的声明，我们只用定义对应的函数结构即可
+          // 抽象方法只能存在于抽象类中
+          abstract toString():void;
+      }
+  
+      /* 
+      如果一个非抽象类继承了抽象类，必须实现对应的抽象方法
+          - 非抽象类“Student”不会实现继承自“Person”类的抽象成员“toString”。
+      */
+      // class Student extends Person{
+      //     score: number;
+  
+      //     constructor(name: string,age: number,score: number){
+      //         //通过 super - 如果在子类中写了构造函数，在子类构造函数中必须调用父类的构造方法
+      //         super (name,age);
+      //         this.score = score;
+      //     }
+      // }
+  
+      class Teacher extends Person{
+          price: number;
+  
+          constructor(name: string,age: number,price: number){
+              super(name,age);
+              this.price = price;
+          }
+  
+          toString(){
+              console.log("Teacher....");
+          }
+      }
+  
+  })();
+  ```
+
+## 5.3 接口
+
+> 接口是 TS 中才有的，编译成 JS 后不会出现在文件中
+
+- 使用 `interface` 声明一个接口
+
+- 接口的主要作用
+
+  1. 定义一个类的结构(规范)，一个类中应该包含哪些属性和方法
+
+     - 可以在定义类的使用去限制类的结构 
+
+     - 接口中的所有属性(方法)都不能定义实际的值
+
+     - 接口中的所有方法都是抽象方法
+
+     - 定义类时可以使用 `implements` 关键字声明要**实现(满足接口的要求)**的接口
+
+     - 实现时可以定义额外的属性(方法)
+
+     - 实例
+
+       ```typescript
+       (function(){
+           /* 
+               使用 interface 关键字声明一个接口
+               接口的主要作用是定义一个类的结构(规范)，定义一个类应该包含哪些属性和方法
+                   - 可以在定义类的使用去限制类的结构 
+                   - 接口中的所有属性(方法)都不能定义实际的值 
+               */
+       
+           /* 
+               可以在定义类时使用'实现(implements)' 接口
+                   - 实现：满足接口的要求
+               */
+           class Person implements myInterface{
+               name: string;
+               age: number;
+               gender: 0 | 1;
+               info: string;
+       
+               constructor(name: string,age: number,gender: 0 | 1,info: string;){
+                   this.name = name;
+                   this.age = age;
+                   this.gender = gender;
+                   this.info = info;
+               }
+       
+           }
+       })()
+       ```
+
+  2. 可以作为一个**类型声明**去使用
+
+     - 与类型别名不同的时，接口可以定义多个重名，使用时以全部和起来的为准
+
+     - 使用时不可以定义额外的属性
+
+     - 实例
+
+       ```typescript
+       // 可以使用 type 描述一个对象的类型
+       type myType = {
+           name: string,
+           age: number;
+       };
+       
+       // 定义一个变量的类型为通过 type 定义的类型，需要写对应的结构
+       const obj: myType = {
+           name: "巴御前",
+           age: 18
+           // info: "archer" //对象文字可以只指定已知属性，并且“info”不在类型“myType”中。ts(2322) 
+       }
+       
+       /* 
+       使用 interface 关键字声明一个接
+       	接口可以作为一个类型声明去使用
+       		- 与类型别名不同的时，接口可以定义多个重名，使用时以全部和起来的为准
+       */
+       interface myInterface {
+           name: string,
+               age: number;
+       };
+       
+       interface myInterface {
+           gender: 1 | 0;
+       }
+       
+       //作为类型声明
+       const obj2: myInterface = {
+           name: "巴御前",
+           age: 16,
+           gender: 1
+           // info:"archar" //  对象文字可以只指定已知属性，并且“info”不在类型“myInterface”中。ts(2322)
+       }
+       ```
+
+- **接口和抽象类的区别**
+
+  1. 实现(**implements**)接口; 继承(**extends**)抽象类
+
+  2. 接口中的方法都是抽象方法，属性都不能有实际的值
+
+     抽象类可以不有抽象方法，属性可以有实际的值
+
+## 5.4 属性的封装
+
+- 普通的实例属性可以直接被实例直接访问(修改),这样可能会导致数据不正确
+
+- TS 可以在属性前添加属性的修饰符
+
+  - **public：** (默认) 公有的，修饰的属性可以在任意位置访问(修改)默认值
+
+  - **private：**私有的，私有属性只能在**当前类内进行修改(访问)**
+
+    通过在类中添加方法让私有属性可以被外部访问(get/set)
+
+    getter 方法用来读取属性; setter 用来设置属性; - **它们作为属性的存取器，可以在方法中设置具体的逻辑以控制属性**
+
+    ```typescript
+    class Person{
+        /* 
+        普通的实例属性可以直接被实例直接访问(修改),这样可能会导致数据不正确
+        TS 可以为属性添加权限修饰符
+        	- public 默认(公有的) 修饰的属性可以在任意位置访问(修改)默认值
+            - private (私有的) 私有属性只能在当前类内进行修改(访问)
+            	- 可以通过在类中添加 get/set 方法，让外部可以进行修改(访问)
+        */
+        name: string;
+    
+        //使用 privtae 修饰属性
+        private age: number;
+    
+        constructor(name: string,age: number){
+            this.name = name;
+            this.age = age;
+        }
+    
+        //定义 getter & setter
+        getAge(){
+            return this.age;
+        }
+    
+        setAge(age: number){
+            //可以在方法中使用具体的逻辑控制属性
+            if(age > 0){
+                this.age = age;
+            }
+        }
+    };
+    
+    let per = new Person("巴御前",18);
+    console.log(per.name);
+    console.log(per);
+    // console.log(per.age); //报错 - 属性“age”为私有属性，只能在类“Person”中访问。ts(2341)
+    ```
+
+  - **protected：**受保护的，只能在当前类/当前类的子类中进行访问
+
+    ```typescript
+    //使用 protected 修饰符
+    class A{
+        //只能在当前类/当前类的子类中进行访问
+        protected tag: string;
+        private tag2: string;
+        public tag3: string;
+    
+        constructor(tag: string,tag2: string,tag3:string){
+            this.tag = tag;
+            this.tag2 = tag2;
+            this.tag3 = tag3;
+        }
+    }
+    
+    class B extends A{
+        //在子类中，只能访问 public 和 protected 修饰符修饰的属性
+        toString(){
+            console.log(this.tag);
+            // console.log(this.tag2); //属性“tag2”为私有属性，只能在类“A”中访问。ts(2341)
+            console.log(this.tag3);
+        }
+    }
+    ```
+
+- 在 TS 中可以使用另一种方法指定 get/set
+
+  语法：get/set 属性名(){}
+
+  好处：可以让属性像 public 一样进行访问(修改)，但仍会执行对应的方法
+
+  注意：属性名和方法名不能一样( 可以在属性名前面加上_ )
+
+  ```typescript
+  //在 TS 中可以使用另一种方式指定 get/set
+  class Student{
+      //避免属性名和方法一样
+      private _name: string;
+  
+      constructor(name: string){
+          this._name = name;
+      }
+  
+      //语法：get/set 属性名(){}
+      get name(){
+          return this._name;
+      }
+  
+      set name(name: string){
+          this._name = name;
+      }
+  };
+  let stu = new Student("呀哈哈");
+  stu.name = "巴御前2"; //可以像 public 一样进行访问
+  console.log(stu.name);
+  ```
+
+- **扩展：**可以直接将属性定义在构造函数中
+
+  ```typescript
+  //可以直接将属性定义在构造函数中
+  class C{
+  
+      constructor(public name: string){
+          this.name = name;
+      }
+  
+  }
+  ```
+
+## 5.5 泛型
+
+- 在定义函数或是类时，如果遇到类型不明确就可以使用泛型
+
+- 定义函数时使用函数
+
+  - 对应的形参和返回值的类型也可以定义为对应的泛型
+
+    ```typescript
+    /* 定义函数时使用泛型
+        - 对应的形参和返回值的类型也可以定义为泛型 T
+    
+    */
+    function testA<T>(value: T):T {
+        return value;
+    }
+    
+    //调用函数时指定泛型
+    console.log(testA("巴御前")); // 不指定泛型，TS可以自动对类型进行推断
+    console.log(testA<String>("巴御前")); //使用<类型> 指定泛型
+    ```
+
+  - 支持定义多个泛型
+
+    ```typescript
+    //可以定义多个泛型
+    function testB<T,K>(value: T,value2: K): T{
+        console.log(value2);
+        return value;
+    }
+    
+    console.log(testB("天下第一","巴御前"));
+    ```
+
+  - 对于泛型可以限制其为某个 接口/类 的子类
+
+    语法: T extends 类/接口 - 表示泛型必须是指定接口/类的子类
+
+    ```typescript
+    //语法：T extends 类/接口 - 表示泛型必须是指定接口/类的子类
+    function testC<T extends myInterface>(value: T):number {
+        return value.length;
+    }
+    
+    testC("巴御前"); //字符串拥有属性 length
+    ```
+
+- 定义类时使用函数
+
+  ```typescript
+  //定义类也可以使用泛型
+  class MyClass<T>{
+      name: T;
+      constructor(name: T){
+          this.name = name;
+      }
+  }
+  
+  let mc = new MyClass<string>("巴御前"); //可以使用 <> 指定泛型，也可以不指定，但建议指定
+  console.log(mc);
+  ```
+
+  

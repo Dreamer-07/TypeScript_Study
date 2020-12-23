@@ -1,0 +1,11 @@
+{
+  "include": ["./src/ts/**/*"],
+  "compilerOptions": {
+    "target": "ES2015",
+    "strict": true,
+    "outDir": "./dist/js",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noEmitOnError": true
+  }
+}
