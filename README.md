@@ -683,5 +683,184 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
    ]
    ```
 
+## 4.3 webpack server
 
+1. 通过命令 `npm i -D webpack-dev-server` 安装 webpack 内置的服务器
+
+2. 配置 package.json，添加 start 命令
+
+   ```json
+   {
+       ...
+       "scripts": {
+           "test": "echo \"Error: no test specified\" && exit 1",
+           "build": "webpack",
+           //添加 start 命令
+           "start": "webpack serve --open chrome.exe"
+       },
+       ...
+   }
+   ```
+
+3. 在命令行执行 `npm start` 命令
+
+4. 游览器会自动打开，并跳转到 index 页面
+
+5. 在修改 html / ts 等资源文件后，会自动编译并刷新页面
+
+## 4.4 删除旧的资源文件
+
+> 在编译源文件之前，先将输出目录下的旧文件全部删除，避免使用到旧文件、
+
+1. 安装插件 `npm i -D clean-webpack-plugin`
+
+2. 在 webpack.config.js 配置插件
+
+   ```javascript 
+   ....
+   // 引入 clean 插件
+   const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+   
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       ...
+   
+       //配置 webpack 插件
+       plugins: [
+           ...
+           //注册
+           new CleanWebpackPlugin()
+       ]
+   }
+   ```
+
+3. 使用编译命令 `npm run start`
+
+## 4.5 设置模块化
+
+> webpack 对模块化的引入(import) 和 暴露(export) 默认后缀名为1js
+>
+> 如果在 ts 中使用模块化，就需要额外配置
+
+1. 修改 webpack.config.js 文件，设置引用模块
+
+   ```js
+   ...
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       ...
+   
+       // 设置引用模块
+       resolve: {
+           //设置模块化文件的后缀名
+           extensions: ['.ts','.js']
+       }
+   }
+   ```
+
+## 4.6 兼容性
+
+> 仅靠 TS 自带的语法转换无法满足项目中需要的兼容性
+
+1. 安装需要的插件
+
+   ```
+   npm i -D @babel/core(babel 核心包) @babel/preset-env(babel 针对不同环境的转换器) babel-loader(babel 整合 webpack) core-js(为旧的游览器提供一个新标准的技术)
+   ```
+
+   **安装后可以在 package.json 的 devDependencies 项查看安装成功的依赖**
+
+2. 配置 webpack.config.js 中修改对应的加载规则(**rules**) 
+
+   ```js
+   ...
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       ...
+       
+       // 指定 webpack 打包时要是用的模块
+       module: {
+           // 指定要加载的规则
+           rules: [
+               {
+                   // test 使用正则指定使用规则的文件
+                   test: /\.ts$/,
+                   // 要使用的 loader
+                   use: [
+                       //复杂配置 - 配置 babel
+                       {
+                           // 指定加载器
+                           loader: "babel-loader",
+                           // 配置对应的选项
+                           options: {
+                               //设置预定义环境
+                               presets:[
+                                   [
+                                       //指定环境使用的插件
+                                       "@babel/preset-env",
+                                       //配置信息
+                                       {
+                                           // 配置要兼容的目标游览器
+                                           targets: {
+                                               "chrome":"88",
+                                               "ie":"11"
+                                           },
+   
+                                           // 指定 corejs 的版本(写最大位数的即可)
+                                           "corejs":"3",
+                                           /* 
+                                           指定使用 corejs 的方式
+                                               usage - 按需加载
+                                           */
+                                          "useBuiltIns":"usage"
+                                       }
+                                   ]
+                               ]
+                           }
+                       },
+                       //简单配置 - 配置 TS
+                       'ts-loader'
+                   ],
+                   // 要排除的文件
+                   exclude: /node_modules/
+               }
+           ]
+       },
+   
+       //配置 webpack 插件
+       ...
+   }
+   ```
+
+3. 由于 webpack 本身的默认设置已经不再兼容旧的游览器，所以需要额外设置
+
+   ```js
+   ...
+   
+   // webpack 中的所有配置信息都应该写在 module.exports 中
+   module.exports = {
+       ...
+       
+       // 指定打包文件所在目录
+       output: {
+           // 指定打包文件的目录
+           path: path.resolve(__dirname,'dist'),
+           // 指定打包后的文件名
+           filename: "bundle.js",
+           // 设置 webpack 不使用箭头函数
+           environment: {
+               arrowFunction: false
+           }
+       },
+   
+       ...
+   }
+   ```
+
+# 第五章 面向对象
+
+## 5.1 类 class
 
