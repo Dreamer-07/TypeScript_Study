@@ -1,5 +1,7 @@
 # TypeScript
 
+github 代码：https://github.com/Dreamer-07/TypeScript_Study.git
+
 # 第一章 简介
 
 - TypeScript 是什么
@@ -527,7 +529,7 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
 
        15. **strickNullChecks** 严格检查空值，默认为 false
 
-# 第四章 使用 webpack 打包 TS
+
 
 ## 4.1 基础使用
 
@@ -539,7 +541,7 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
    npm i -D(表示是开发依赖) webpack(打包工具) webpack-cli(webpack的命令行) typescript ts-loader(集成需要)
    ```
 
-3. 编写 wenpack 的配置文件 `wenpack.config.js `
+3. 编写 webpack 的配置文件 `wenpack.config.js `
 
    ```js
    // 导入一个 NodeJS 中的模块 path
@@ -707,6 +709,8 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
 4. 游览器会自动打开，并跳转到 index 页面
 
 5. 在修改 html / ts 等资源文件后，会自动编译并刷新页面
+
+6. **注意**：webpack-dev-server 会将编译后的文件直接放入的 **内存中**，但依然会调用 webpack 的编译功能，但不会生成文件
 
 ## 4.4 删除旧的资源文件
 
@@ -1395,7 +1399,7 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
     testC("巴御前"); //字符串拥有属性 length
     ```
 
-- 定义类时使用函数
+- 定义类时使用泛型
 
   ```typescript
   //定义类也可以使用泛型
@@ -1411,3 +1415,536 @@ b2 = {name:"巴御前",age:16}; //缺少可有可无的属性也不会报错
   ```
 
   
+
+# 第六章 贪吃蛇
+
+## 6.1 项目搭建
+
+1. 参考第四章配置 webpack
+
+   也可以将之前的四个配置文件全部复制过来，然后在命令行输入 `npm i` 便会自动安装依赖
+
+2. webpack 配置预编译 css(less 等)
+
+   1. 命令：`npm i -D less less-loader(less 集成 webpack) css-loader(css 集成 webpack) style-loader(样式引入页面)`
+
+   2. 修改 webpack.config.js 文件
+
+      ```js
+      ...
+      
+      // 配置 webpack
+      module.exports = {
+          ...
+      
+          // 指定 webpack 打包时要是用的模块
+          module: {
+              // 指定要加载的规则
+              rules: [
+                  ...
+                  //对 Less 文件进行处理
+                  {
+                      test: /\.less$/, 
+                      use:[
+                          "style-loader",
+                          "css-loader",
+                          "less-loader"
+                      ]
+                  }
+              ]
+          },
+          ...
+      }
+      ```
+
+      **注意：** use 中配置的 loader ，**执行顺序是由上往下的**
+
+3. 由于历史遗留问题，对于 css3 的一些新语法，可能需要我们去解决**兼容性问题**
+
+4. 使用以下命令安装 postcss
+
+   ```
+   npm i -D postcss(主要工具) postcss-loader(对 css 的加载) postcss-preset-env(对 css 执行环境的预编译)
+   ```
+
+5. 修改 `webpack.config.js` 的配置
+
+   ```js
+   ...
+   
+   // 配置 webpack
+   module.exports = {
+       ...
+       
+       // 指定 webpack 打包时使用的模块
+       module: {
+           // 指定要加载的规则
+           rules: [
+               ...
+               
+               //对 Less 文件进行处理
+               {
+                   test: /\.less$/, 
+                   use:[
+                       "style-loader",
+                       "css-loader",
+                       //在这里引入 postcss，对编译后的 css 文件进行修改
+                       {
+                           //指定加载器
+                           loader: "postcss-loader",
+                           //配置
+                           options: {
+                               postcssOptions: {
+                                   //配置要使用的插件
+                                   plugins: [
+                                       [
+                                           "postcss-preset-dev",
+                                           {
+                                               // 兼容各个游览器最近的两个版本
+                                               browsers: "last 2 versions"
+                                           }
+                                       ]
+                                   ]
+                               }
+                           }
+                       },
+                       "less-loader"
+                   ]
+               }
+           ]
+       },
+       ,,,
+   }
+   ```
+
+6. 编写 less 文件
+
+7. 构建项目
+
+## 6.2 项目界面(小游戏)
+
+> 1. 开发方式1：使用 JS 来搭建页面，全部标签都由 JS 进行搭建，这样做灵活度较高
+>
+>    但加载的速度会变慢，开发复杂度会提高
+>
+> 2. 开发方式2：HTML √
+
+1. 使用 html + less 搭建页面，同时测试需要兼容的游览器是否成功
+
+2. 如果需要兼容 IE10，还需要添加一个配置，在 webpack.config.js 中
+
+   由于 webpack 默认会使用 const ，所以需要禁止该设定
+
+   ```js
+   ...
+   
+   // 配置 webpack
+   module.exports = {
+       ...
+   
+       // 指定打包文件所在目录
+       output: {
+           // 指定打包文件的目录
+           path: path.resolve(__dirname,'dist'),
+           // 指定打包后的文件名
+           filename: "bundle.js",
+           environment: {
+               arrowFunction: false,
+               const: false
+           }
+       },
+   
+       ....
+   }
+   ```
+
+3. **设计图** - Html 和 Less 代码随意发挥，不限
+
+   ![image-20201225164546723](README.assets/image-20201225164546723.png)
+
+## 6.3 类的设计
+
+### Food
+
+```typescript
+//在 module 文件中负责类的编写
+
+//Food 类
+class Food{
+    // 定义一个与之对应绑定的元素
+    private _element: HTMLElement;
+
+    constructor(){
+        // 通过 id 找到页面中对应的组件并初始化
+        // 由于 TS 为了防止找不到对应的元素，这里会报一个错 不能将类型“HTMLElement | null”分配给类型“HTMLElement”。
+        // 可以在后面加上一个 ! 表示'断言'
+        this._element = document.getElementById("food")!;
+    }
+
+    // 获取水平横轴坐标
+    get X(){
+        return this._element.offsetLeft;
+    }
+
+    // 获取水平纵向坐标
+    get Y(){
+        return this._element.offsetTop;
+    }
+
+    /* 
+    设置一个方法在蛇将 Food 吃掉之后，需要改变 Food 的位置 
+        - 规定：
+            1. 位置只能生成在 0-290 的位置(X,Y);
+            2. 由于 Snake 一次走的间距为10，所以还需要规定 Food 的位置只能生成在以 10 为整数的位置
+    */
+    change(){
+        /* 
+        通过 Math.random 生成 0~1 的数(不包括0,1),将得到的数 * 29,得到 0 ~ 29 的数
+        通过 Math.round 四舍五入得到的数(包括0,29),在将得到的数 * 29,得到坐标
+        */
+        this._element.style.left = (Math.round(Math.random() * 29) * 10 + "px")
+        this._element.style.top = (Math.round(Math.random() * 29) * 10 + "px")
+    }
+}
+
+//设置对外暴露接口
+export default Food;
+```
+
+### ScorePanel
+
+```typescript
+// 信息面板
+class ScorePanel{
+    //设置默认的分数和信息
+    private score = 0;
+    private level = 1;
+    //设置分数和信息对应的元素
+    private scoreElement: HTMLElement;
+    private levelElement: HTMLElement;
+    //设置最大等级和升级分数
+    private maxLevel: number;
+    private upScore: number;
+
+    constructor(maxLevel: number = 10,upScore: number = 10){
+        this.scoreElement = document.getElementById("score_info")!;
+        this.levelElement = document.getElementById("level_info")!;
+        this.maxLevel = maxLevel;
+        this.upScore = upScore;
+    };
+
+    // get set
+    getSocre(){
+        return this.score;
+    }
+
+    getLevel(){
+        return this.level;
+    }
+
+    //加分
+    addScore(){
+        //修改页面的信息以及保存的信息
+        this.scoreElement.innerHTML = ++this.score + ""
+        //如果分数满足了升级需要的，就提升等级 && 等级不超过指定的最大等级
+        if(this.score % this.upScore == 0 && this.level < this.maxLevel){
+            this.addLevel();
+        }
+    }
+
+    //升级
+    private addLevel(){
+        this.levelElement.innerHTML = ++this.level + ""
+    }
+}
+
+export default ScorePanel;
+```
+
+### Snake
+
+```typescript
+// 定义蛇类
+class Snake{
+    // 对应的蛇(容器)元素
+    private element: HTMLElement;
+    // 蛇头
+    private head: HTMLElement;
+    // 蛇身(包括蛇头) - HTMLCollection:一个动态的 HTML 元素集合
+    private body: HTMLCollection;
+
+    constructor(){
+        this.element = document.getElementById("snake")!;
+        this.head = this.element.querySelector("#head") as HTMLElement;
+        this.body = this.element.getElementsByTagName("div");
+    }
+
+    //获取蛇头的 X 坐标
+    get X(){
+        return this.head.offsetLeft;
+    }
+
+    //设置蛇头 X 坐标
+    set X(value){
+        //如果坐标相同，就不修改
+        if(this.X === value){
+            return;
+        }
+        //判断是否装到墙了
+        if(value < 0 || value > 290){
+            //如果撞到就抛出异常
+            throw new Error("撞到墙了,Game Over!");
+        }
+        /* 
+        防止掉头
+            1. 判断是否存在第二个身体部分 && 判断移动的位置是否是第二个身体的位置
+            2. 判断是向哪个方向前进，向其的反方向前进即可
+        */
+        if(this.body[1] && value === (this.body[1] as HTMLElement).offsetLeft){
+            if(this.X > value){ // 如果是向左掉头。就向右前进
+                value = this.X + 10;
+            }else{
+                value = this.X - 10 // 如果是向右掉头，就向左前进
+            }   
+        }
+        // 在移动蛇头之前，先移动蛇的身体
+        this.moveBody();
+
+        this.head.style.left = value + "px";
+    }
+
+    //获取蛇头的 Y 坐标
+    get Y(){
+        return this.head.offsetTop;
+    }
+
+    //设置蛇头的 Y 坐标
+    set Y(value){
+        //如果坐标相同，就不修改
+        if(this.Y === value){
+            return;
+        }
+
+        //判断是否装到墙了
+        if(value < 0 || value > 290){
+            //如果撞到就抛出异常
+            throw new Error("撞到墙了!");
+        }
+
+        // 和 X 同理
+        if(this.body[1] && value === (this.body[1] as HTMLElement).offsetTop){
+            if(this.Y > value){ // 如果是向左掉头。就向右前进
+                value = this.Y + 10;
+            }else{
+                value = this.Y - 10 // 如果是向右掉头，就向左前进
+            }  
+        }
+
+        // 在移动蛇头之前，先移动蛇的身体
+        this.moveBody();
+
+        this.head.style.top = value + "px";
+
+        // 检查蛇头和蛇身是否撞到
+        this.checkHeadBody();
+    }
+
+
+
+    //升级时添加身体
+    addBody(){
+        /* 
+        this.element.insertAdjacentHTML：向当前元素内部添加 HTML 代码
+            - 第一个参数：指定位置; beforeend:结束标签之前
+            - 第二个参数：要添加的 HTML 代码
+        */
+        this.element.insertAdjacentHTML("beforeend","<div></div>");
+    };
+
+    // 移动身体
+    moveBody(){
+        //从最后一个开始移动蛇的身体,蛇头由 set 方法移动，这里指移动身体
+        for(let i = this.body.length - 1; i > 0;i--){
+            // 获取前一个身体的位置，将其赋值给当前身体
+            let X = (this.body[i - 1] as HTMLElement).offsetLeft;
+            let Y = (this.body[i - 1] as HTMLElement).offsetTop;
+
+            (this.body[i] as HTMLElement).style.left = X + "px";
+            (this.body[i] as HTMLElement).style.top = Y + "px";
+        }
+    }
+
+    // 检查蛇头和蛇身是否撞到
+    checkHeadBody(){
+        for(let i = 1; i < this.body.length; i++){
+            // 获取身体元素
+            let bd = (this.body[i] as HTMLElement);
+            // 判断是否相撞
+            if(this.X === bd.offsetLeft && this.Y === bd.offsetTop){
+                //如果相等，就抛出异常
+                throw new Error("吃到身体了!");
+            }
+        }
+    }
+}
+
+export default Snake;
+```
+
+## 6.4 设计控制器
+
+1. 将需要到的三个类都导入到控制器类中，由控制器类统一控制
+
+   `index.js` 只需要导入控制器模块，创建对象即可
+
+   ```typescript
+   // 导入使用的其他模块
+   import Food from "./Food";
+   import ScorePanel from "./ScorePanel"
+   import Snake from "./Snake";
+   ```
+
+2. 设计五个属性，其中三个为对应的三个模块，另外两个，一个是 `direction`(方向)，另一个是 `isLive`(是否存活)
+
+   游戏设计思路：**不是按一下走一下，而是只控制方向，让其自己走**
+
+3. 在创建对象时，初始化游戏
+
+   ```typescript
+   //初始化游戏
+   private init(){
+       /* 
+           开启全局监听键盘事件 
+           虽然回调函数使用了 GC 中的，但回调函数的调用还是由 document 来执行
+           这样会导致执行 keydownListener() 方法时 this 不是 GC 而是 document
+           使用 bind() 函数可以绑定一个对象，该对象就是指定函数在执行时的 this 为指定的对象
+           */
+       document.addEventListener("keydown",this.keydownListener.bind(this));
+       // 开始移动蛇
+       this.run();
+   }
+   ```
+
+4. 初始化时开启两个事件，一个是 `keydownListener`(键盘监听) ，一个是 `run` (蛇的移动)
+
+   **注意使用 bind() 修改 this**
+
+   ```typescript
+   //初始化游戏
+   private init(){
+       /* 
+       开启全局监听键盘事件 
+       虽然回调函数使用了 GC 中的，但回调函数的调用还是由 document 来执行
+       这样会导致执行 keydownListener() 方法时 this 不是 GC 而是 document
+       使用 bind() 函数可以绑定一个对象，该对象就是指定函数在执行时的 this 为指定的对象
+       */
+       document.addEventListener("keydown",this.keydownListener.bind(this));
+       // 开始移动蛇
+       this.run();
+   }
+   ```
+
+5. `keydownListener()`
+
+   ```typescript
+   //键盘监听事件 - 负责修改移动的方向
+   keydownListener(event:KeyboardEvent){
+       //修改方向
+       this.direction = event.key;
+   }
+   ```
+
+   `run()`
+
+   ```typescript
+   // 移动蛇,根据不同方向，自动移动蛇
+   run(){
+       // 获取当前蛇坐标
+       let x = this.snake.X;
+       let y = this.snake.Y;
+   
+       /* 
+       event.key 获取按下键的名称 
+           chrome      ie
+           ArrowLeft   Left
+           ArrowRight  Right
+           ArrowUp     Up
+           ArrowDown   Down
+       */
+       switch(this.direction){
+               // 向左
+           case "ArrowLeft":
+           case "Left":
+               x -= 10;
+               break;
+               // 向右
+           case "ArrowRight":
+           case "Right":
+               x += 10;
+               break;
+               // 向上
+           case "ArrowUp":
+           case "Up":
+               y -= 10;
+               break;
+               // 向下
+           case "ArrowDown":
+           case "Down":
+               y += 10;
+               break;
+       }
+   
+       //判断是否吃到食物乐
+       this.checkEat(x,y);
+   
+       //修改坐标
+       try{
+           this.snake.X = x;
+           this.snake.Y = y;
+       }catch (e){
+           alert(e.message + " GEME OVER!");
+           //设置死亡
+           this.isLive = false;
+       }
+   
+   
+       /* 
+       只有在存活时才可以执行定时器
+       开启一个定时器，时蛇能向一个方向前进
+       使用 bind 同理，修改 this 为 this
+       同时，移动的间隔应该随着游戏 level 的提高而提高(增加难度)
+       */
+       this.isLive && setTimeout(this.run.bind(this),300 - (this.scorePanel.getLevel() - 1) * 20)
+   }
+   
+   //判断是否吃到了
+   checkEat(X: number,Y: number){
+       if(X === this.food.X && Y === this.food.Y){
+           // 改变食物位置
+           this.food.change();
+           // 分数+1
+           this.scorePanel.addScore();
+           // 添加身体
+           this.snake.addBody();
+       }
+   }
+   ```
+
+6. 对外暴露接口
+
+   ```typescript
+   export default GameController
+   ```
+
+7. 在 `index.js` 中使用
+
+   ```typescript
+   //在 TS 中引入 less
+   import "../style/index.less"
+   import GameController from "./module/GameController"
+   
+   //创建对象即可
+   const GC = new GameController();
+   ```
+
+   
