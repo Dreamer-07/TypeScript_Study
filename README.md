@@ -1948,3 +1948,44 @@ export default Snake;
    ```
 
    
+
+# 第七章 其他
+
+## 7.1 声明文件
+
+- 当使用第三方库时，我们往往需要引用它的声明文件，才能获取相应的代码补全，接口提示等功能
+
+  > ```typescript
+  > /* 
+  > 当使用第三方库时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
+  > 声明语句: 如果需要ts对新的语法进行检查, 需要要加载了对应的类型说明代码
+  >   declare var jQuery: (selector: string) => any;
+  > 声明文件: 把声明语句放到一个单独的文件（jQuery.d.ts）中, ts会自动解析到项目中所有声明文件
+  > 下载声明文件: npm install @types/jquery --save-dev
+  > */
+  > ```
+
+- 一般一个单独的声明文件会写成单独的一个 `xxx.d.ts` 文件
+
+  将声明语句全部定义在声明文件中即可
+
+- 很多的第三方库都定义了对应的声明文件库, 库文件名一般为 `@types/xxx`, 可以在 `https://www.npmjs.com/package/package` 进行搜索 
+
+- ```typescript
+  /* 
+  当使用第三方库时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
+  声明语句: 如果需要ts对新的语法进行检查, 需要要加载了对应的类型说明代码
+    declare var jQuery: (selector: string) => any;
+  声明文件: 把声明语句放到一个单独的文件（jQuery.d.ts）中, ts会自动解析到项目中所有声明文件
+  下载声明文件: npm install @types/jquery --save-dev
+  */
+  
+  // 下载声明文件之后直接导入对应的第三方库即可
+  import Jquery from 'jquery';
+  
+  // 轻触即可插件对应的提示
+  Jquery("巴御前天下第一")
+  ```
+
+  
+
